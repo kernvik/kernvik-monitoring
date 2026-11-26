@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite*
+*.log
+*.pem
+*.key
+**/data/
+**/backups/
+**/secrets/
+__pycache__/
+.venv/

@@ -1,0 +1,28 @@
+name: Проверки MonitorBox
+on:
+  push:
+    branches: [testing]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Проверка Compose
+        run: python3 tests/check_compose.py
+      - name: Запуск контейнера
+        run: docker compose -f deploy/compose.yaml up -d --wait --wait-timeout 180
+      - name: Проверка HTTP
+        run: curl --fail --silent --show-error --max-time 15 http://127.0.0.1:3001/ -o /dev/null
+      - name: Журнал при ошибке
+        if: failure()
+        run: docker compose -f deploy/compose.yaml logs --tail 80
+      - name: Очистка временного окружения CI
+        if: always()
+        run: docker compose -f deploy/compose.yaml down -v
